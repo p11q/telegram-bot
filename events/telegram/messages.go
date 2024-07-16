@@ -12,6 +12,6 @@ const msgHello = "Hi there! 👾\n\n" + msgHelp
 const (
 	msgUnknownCommand = "Unknown command 🤔"
 	msgNoSavedPages   = "You have no saved pages 🙊"
-	msgSaved          = "Saved! 👌"
+	msgSaved          = "Ссылка сохранена! 👌"
 	msgAlreadyExists  = "You have already have this page in your list 🤗"
 )
