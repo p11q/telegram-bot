@@ -2,12 +2,13 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 
 	"telegram_bot/storage"
+
+	"database/sql"
 )
 
 type Storage struct {
