@@ -1,28 +1,35 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
-
 	tgClient "telegram_bot/clients/telegram"
 	event_consumer "telegram_bot/consumer/event-consumer"
 	"telegram_bot/events/telegram"
-	"telegram_bot/storage/files"
+	"telegram_bot/storage/sqlite"
 )
 
 const (
-	tgBotHost   = "api.telegram.org"
-	storagePath = "files_storage"
-	batchSize   = 100
+	tgBotHost         = "api.telegram.org"
+	sqliteStoragePath = "data/sqlite/storage.db"
+	batchSize         = 100
 )
 
-// 7260402433:AAHP_bEdwQ8NRgwwX64gxR1AjRr1hwqpRnc
-
 func main() {
+	//s := files.New(storagePath)
+	s, err := sqlite.New(sqliteStoragePath)
+	if err != nil {
+		log.Fatal("can't connect to storage: ", err)
+	}
+
+	if err := s.Init(context.TODO()); err != nil {
+		log.Fatal("can't init storage: ", err)
+	}
 
 	eventsProcessor := telegram.New(
 		tgClient.New(tgBotHost, mustToken()),
-		files.New(storagePath),
+		s,
 	)
 
 	log.Print("service started")
@@ -30,12 +37,11 @@ func main() {
 	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
 
 	if err := consumer.Start(); err != nil {
-		log.Fatal()
+		log.Fatal("service is stopped", err)
 	}
 }
 
 func mustToken() string {
-
 	token := flag.String(
 		"tg-bot-token",
 		"",
@@ -45,7 +51,7 @@ func mustToken() string {
 	flag.Parse()
 
 	if *token == "" {
-		log.Fatal("token is not spacified")
+		log.Fatal("token is not specified")
 	}
 
 	return *token
